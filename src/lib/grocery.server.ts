@@ -1,22 +1,12 @@
 import { generateText } from "ai";
-import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { AnalysisSchema, type Analysis } from "./grocery.types";
 
 export type GoalId = string;
 
-export const AnalysisSchema = z.object({
-  productName: z.string(),
-  category: z.string(),
-  score: z.number().min(0).max(100),
-  verdict: z.enum(["buy", "okay", "skip"]),
-  summary: z.string(),
-  nutrition: z.array(z.object({ label: z.string(), value: z.string() })),
-  flags: z.array(z.object({ kind: z.enum(["good", "watch"]), text: z.string() })),
-  swaps: z.array(z.object({ name: z.string(), why: z.string() })),
-  listItems: z.array(z.string()),
-});
+export { AnalysisSchema };
+export type { Analysis };
 
-export type Analysis = z.infer<typeof AnalysisSchema>;
 
 const GOAL_HINTS: Record<string, string> = {
   balanced: "an everyday balanced diet",
