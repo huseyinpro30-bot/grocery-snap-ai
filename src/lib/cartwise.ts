@@ -1,4 +1,4 @@
-import type { Analysis } from "./grocery.server";
+import type { Analysis } from "./grocery.types";
 import { KEYS, useLocalStore } from "./local-store";
 
 export type ListItem = { id: string; text: string; done: boolean };
