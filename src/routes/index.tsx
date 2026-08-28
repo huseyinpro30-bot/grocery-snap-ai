@@ -163,12 +163,9 @@ function ScanPage() {
        
 {/* Scanner */}
 <section className="surface overflow-hidden">
-  <div
+ <div
   className="relative aspect-[4/3] w-full cursor-pointer bg-muted"
- onClick={() => {
-  console.log("BIG CAMERA CLICKED");
-  cameraRef.current?.click();
-}}
+  onClick={() => cameraRef.current?.click()}
 >
     {preview ? (
       <img
