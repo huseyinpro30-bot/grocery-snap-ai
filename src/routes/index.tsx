@@ -55,21 +55,12 @@ export const Route = createFileRoute("/")({
 });
 
 function ScanPage() {
-  const [goal, setGoal] = useLocalStore<string>(
-    KEYS.goal,
-    "balanced",
-  );
-
-  const [note, setNote] = useLocalStore<string>(
-    KEYS.note,
-    "",
-  );
-
+  const [goal, setGoal] = useLocalStore<string>(KEYS.goal, "balanced");
+  const [note, setNote] = useLocalStore<string>(KEYS.note, "");
   const [preview, setPreview] = useState<string | null>(null);
 
   const [, setItems] = useBasket();
   const [, setHistory] = useHistory();
-
   const quota = useScanQuota();
 
   const cameraRef = useRef<HTMLInputElement>(null);
@@ -89,9 +80,7 @@ function ScanPage() {
       }),
 
     onError: (e: Error) => {
-      toast.error(
-        e.message || "Couldn't read that photo. Try again.",
-      );
+      toast.error(e.message || "Couldn't read that photo. Try again.");
     },
 
     onSuccess: (data, image) => {
@@ -121,24 +110,46 @@ function ScanPage() {
 
   const result = mutation.data;
 
-  function addItem(text: string) {
-    setItems((prev) =>
-      prev.some(
-        (item) =>
-          item.text.toLowerCase() === text.toLowerCase(),
-      )
-        ? prev
-        : [
-            ...prev,
-            {
-              id: crypto.randomUUID(),
-              text,
-              done: false,
-            },
-          ],
-    );
+  function openCamera() {
+    if (mutation.isPending) return;
 
-    toast.success(`${text} added to basket`);
+    const input = cameraRef.current;
+    if (!input) return;
+
+    // Reset first so choosing the same image again still fires onChange.
+    input.value = "";
+
+    // showPicker is more reliable where supported.
+    if ("showPicker" in HTMLInputElement.prototype) {
+      try {
+        input.showPicker();
+        return;
+      } catch {
+        // Fall back to click below.
+      }
+    }
+
+    input.click();
+  }
+
+  function openUpload() {
+    if (mutation.isPending) return;
+
+    const input = uploadRef.current;
+    if (!input) return;
+
+    input.value = "";
+
+    if ("showPicker" in HTMLInputElement.prototype) {
+      try {
+        input.showPicker();
+        return;
+      } catch {
+        // Fall back to click below.
+      }
+    }
+
+    input.click();
   }
 
   async function handleFile(file?: File | null) {
@@ -155,23 +166,29 @@ function ScanPage() {
       const dataUrl = await fileToCompressedDataUrl(file);
 
       setPreview(dataUrl);
-
       mutation.mutate(dataUrl);
     } catch {
       toast.error("That image couldn't be loaded.");
     }
   }
 
-  function openCamera() {
-    if (mutation.isPending) return;
+  function addItem(text: string) {
+    setItems((prev) =>
+      prev.some(
+        (item) => item.text.toLowerCase() === text.toLowerCase(),
+      )
+        ? prev
+        : [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              text,
+              done: false,
+            },
+          ],
+    );
 
-    cameraRef.current?.click();
-  }
-
-  function openUpload() {
-    if (mutation.isPending) return;
-
-    uploadRef.current?.click();
+    toast.success(`${text} added to basket`);
   }
 
   return (
@@ -179,37 +196,23 @@ function ScanPage() {
       {/* Camera input */}
       <input
         ref={cameraRef}
-        id="camera-input"
         type="file"
         accept="image/*"
         capture="environment"
-        className="absolute h-px w-px overflow-hidden opacity-0"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-
-          if (file) {
-            handleFile(file);
-          }
-
-          e.currentTarget.value = "";
+        className="sr-only"
+        onChange={(event) => {
+          void handleFile(event.target.files?.[0]);
         }}
       />
 
-      {/* Upload input */}
+      {/* Gallery input */}
       <input
         ref={uploadRef}
-        id="upload-input"
         type="file"
         accept="image/*"
-        className="absolute h-px w-px overflow-hidden opacity-0"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-
-          if (file) {
-            handleFile(file);
-          }
-
-          e.currentTarget.value = "";
+        className="sr-only"
+        onChange={(event) => {
+          void handleFile(event.target.files?.[0]);
         }}
       />
 
@@ -246,14 +249,13 @@ function ScanPage() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-5xl space-y-6 px-5 pb-8">
+      <main className="mx-auto max-w-5xl space-y-6 px-5 pb-8">
         {/* Quota */}
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3">
           <div className="flex items-center gap-2 text-sm">
             {quota.pro ? (
               <>
                 <Zap className="h-4 w-4 text-citrus" />
-
                 <span className="font-medium">
                   Cartwise Pro — unlimited scans
                 </span>
@@ -284,14 +286,13 @@ function ScanPage() {
 
         {/* Scanner */}
         <section className="surface overflow-hidden">
-          {/* Clickable camera preview */}
-          <label
-            htmlFor="camera-input"
-            className={`relative block aspect-[4/3] w-full bg-muted ${
-              mutation.isPending
-                ? "cursor-wait"
-                : "cursor-pointer"
-            }`}
+          {/* Clickable scanner */}
+          <button
+            type="button"
+            disabled={mutation.isPending}
+            onClick={openCamera}
+            className="relative block aspect-[4/3] w-full cursor-pointer overflow-hidden bg-muted text-left disabled:cursor-wait"
+            aria-label="Take a photo"
           >
             {preview ? (
               <img
@@ -306,9 +307,13 @@ function ScanPage() {
                 </div>
 
                 <p className="max-w-xs px-6 text-sm text-muted-foreground">
-                  No photo yet — tap here to take one or upload
-                  from your gallery.
+                  No photo yet — tap here to take one or
+                  upload from your gallery.
                 </p>
+
+                <span className="rounded-full border border-border bg-card px-4 py-2 text-xs font-medium">
+                  Tap to open camera
+                </span>
               </div>
             )}
 
@@ -325,11 +330,10 @@ function ScanPage() {
                 </div>
               </>
             )}
-          </label>
+          </button>
 
           {/* Controls */}
           <div className="space-y-5 p-6">
-            {/* Goal */}
             <div>
               <p className="text-xs uppercase tracking-widest text-muted-foreground">
                 Shopping goal
@@ -338,8 +342,8 @@ function ScanPage() {
               <div className="mt-2 flex flex-wrap gap-2">
                 {GOALS.map((g) => (
                   <button
-                    key={g.id}
                     type="button"
+                    key={g.id}
                     onClick={() => setGoal(g.id)}
                     aria-pressed={goal === g.id}
                     className={`rounded-full border px-3.5 py-2 text-sm transition-all ${
@@ -348,27 +352,22 @@ function ScanPage() {
                         : "border-border bg-card hover:border-primary/40 hover:bg-secondary"
                     }`}
                   >
-                    <span className="mr-1.5">
-                      {g.icon}
-                    </span>
-
+                    <span className="mr-1.5">{g.icon}</span>
                     {g.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Note */}
             <Textarea
               value={note}
-              onChange={(e) => setNote(e.target.value)}
+              onChange={(event) => setNote(event.target.value)}
               maxLength={300}
               rows={2}
               placeholder="Anything else? e.g. lactose intolerant, cooking for two kids…"
               aria-label="Extra context for the AI"
             />
 
-            {/* Action buttons */}
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button
                 type="button"
@@ -419,7 +418,7 @@ function ScanPage() {
           )}
         </div>
 
-        {/* Feature cards */}
+        {/* Features */}
         {!result && (
           <section className="grid gap-3 sm:grid-cols-3">
             {[
@@ -438,25 +437,25 @@ function ScanPage() {
                 title: "Better swaps",
                 body: "Get concrete alternatives, straight into your basket.",
               },
-            ].map((f) => (
+            ].map((feature) => (
               <div
-                key={f.title}
+                key={feature.title}
                 className="surface p-5"
               >
-                <f.icon className="h-5 w-5 text-primary" />
+                <feature.icon className="h-5 w-5 text-primary" />
 
                 <p className="mt-3 font-display text-base font-semibold">
-                  {f.title}
+                  {feature.title}
                 </p>
 
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {f.body}
+                  {feature.body}
                 </p>
               </div>
             ))}
           </section>
         )}
-      </div>
+      </main>
     </>
   );
 }
