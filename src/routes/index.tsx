@@ -159,21 +159,19 @@ function ScanPage() {
           )}
         </div>
 
-        {/* Scanner */}
+        
        {/* Scanner */}
 <section className="surface overflow-hidden">
-  <div
-    className="relative aspect-[4/3] w-full cursor-pointer bg-muted"
-    onClick={() => !mutation.isPending && cameraRef.current?.click()}
-    role="button"
-    tabIndex={0}
-    onKeyDown={(e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        if (!mutation.isPending) cameraRef.current?.click();
-      }
-    }}
-  >
+  <button
+  type="button"
+  className="relative block aspect-[4/3] w-full cursor-pointer bg-muted text-left"
+  onClick={() => {
+    if (!mutation.isPending) {
+      cameraRef.current?.click();
+    }
+  }}
+  disabled={mutation.isPending}
+>
     {preview ? (
       <img
         src={preview}
