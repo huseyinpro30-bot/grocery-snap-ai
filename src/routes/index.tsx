@@ -161,16 +161,14 @@ function ScanPage() {
 
         
        {/* Scanner */}
-<section className="surface overflow-hidden">
-  <button
-  type="button"
-  className="relative block aspect-[4/3] w-full cursor-pointer bg-muted text-left"
-  onClick={() => {
+<div
+  className="relative aspect-[4/3] w-full cursor-pointer bg-muted"
+  onPointerUp={(e) => {
+    e.preventDefault();
     if (!mutation.isPending) {
       cameraRef.current?.click();
     }
   }}
-  disabled={mutation.isPending}
 >
     {preview ? (
       <img
