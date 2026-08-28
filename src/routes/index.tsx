@@ -46,6 +46,9 @@ function ScanPage() {
   const cameraRef = useRef<HTMLInputElement>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+  function openCamera() {
+  cameraRef.current?.click();
+}
 
   const analyze = useServerFn(analyzeGrocery);
   const mutation = useMutation({
