@@ -160,98 +160,120 @@ function ScanPage() {
         </div>
 
         {/* Scanner */}
-        <section className="surface overflow-hidden">
-          <div className="relative aspect-[4/3] w-full bg-muted">
-            {preview ? (
-              <img src={preview} alt="Your scanned grocery item" className="h-full w-full object-cover" />
-            ) : (
-              <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                <div className="grid h-16 w-16 place-items-center rounded-2xl gradient-fresh text-primary-foreground">
-                  <Camera className="h-7 w-7" />
-                </div>
-                <p className="max-w-xs px-6 text-sm text-muted-foreground">
-                  No photo yet — take one in the store or upload from your gallery.
-                </p>
-              </div>
-            )}
-            {mutation.isPending && (
-              <>
-                <div className="absolute inset-0 bg-primary/10 backdrop-blur-[2px]" />
-                <div className="animate-scan absolute inset-x-0 h-24 bg-gradient-to-b from-transparent via-citrus/50 to-transparent" />
-                <div className="absolute inset-x-0 bottom-4 flex justify-center">
-                  <span className="rounded-full bg-card px-4 py-2 text-sm font-medium shadow-md">
-                    Reading the label…
-                  </span>
-                </div>
-              </>
-            )}
-          </div>
+       {/* Scanner */}
+<section className="surface overflow-hidden">
+  <div
+    className="relative aspect-[4/3] w-full cursor-pointer bg-muted"
+    onClick={() => !mutation.isPending && cameraRef.current?.click()}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (!mutation.isPending) cameraRef.current?.click();
+      }
+    }}
+  >
+    {preview ? (
+      <img
+        src={preview}
+        alt="Your scanned grocery item"
+        className="h-full w-full object-cover"
+      />
+    ) : (
+      <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+        <div className="grid h-16 w-16 place-items-center rounded-2xl gradient-fresh text-primary-foreground">
+          <Camera className="h-7 w-7" />
+        </div>
 
-          <div className="space-y-5 p-6">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Shopping goal</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {GOALS.map((g) => (
-                  <button
-                    key={g.id}
-                    onClick={() => setGoal(g.id)}
-                    aria-pressed={goal === g.id}
-                    className={`rounded-full border px-3.5 py-2 text-sm transition-all ${
-                      goal === g.id
-                        ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                        : "border-border bg-card hover:border-primary/40 hover:bg-secondary"
-                    }`}
-                  >
-                    <span className="mr-1.5">{g.icon}</span>
-                    {g.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+        <p className="max-w-xs px-6 text-sm text-muted-foreground">
+          No photo yet — tap here to take one or upload from your gallery.
+        </p>
+      </div>
+    )}
 
-            <Textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              maxLength={300}
-              rows={2}
-              placeholder="Anything else? e.g. lactose intolerant, cooking for two kids…"
-              aria-label="Extra context for the AI"
-            />
+    {mutation.isPending && (
+      <>
+        <div className="absolute inset-0 bg-primary/10 backdrop-blur-[2px]" />
+        <div className="animate-scan absolute inset-x-0 h-24 bg-gradient-to-b from-transparent via-citrus/50 to-transparent" />
+        <div className="absolute inset-x-0 bottom-4 flex justify-center">
+          <span className="rounded-full bg-card px-4 py-2 text-sm font-medium shadow-md">
+            Reading the label…
+          </span>
+        </div>
+      </>
+    )}
+  </div>
 
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button
-                size="lg"
-                className="flex-1"
-                disabled={mutation.isPending}
-                onClick={() => cameraRef.current?.click()}
-              >
-                <Camera className="h-4 w-4" />
-                Take a photo
-              </Button>
-              <Button
-                size="lg"
-                variant="secondary"
-                className="flex-1"
-                disabled={mutation.isPending}
-                onClick={() => uploadRef.current?.click()}
-              >
-                <ImagePlus className="h-4 w-4" />
-                Upload image
-              </Button>
-              {preview && !mutation.isPending && (
-                <Button
-                  size="lg"
-                  variant="ghost"
-                  aria-label="Re-run analysis"
-                  onClick={() => mutation.mutate(preview)}
-                >
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-        </section>
+  <div className="space-y-5 p-6">
+    <div>
+      <p className="text-xs uppercase tracking-widest text-muted-foreground">
+        Shopping goal
+      </p>
 
+      <div className="mt-2 flex flex-wrap gap-2">
+        {GOALS.map((g) => (
+          <button
+            key={g.id}
+            onClick={() => setGoal(g.id)}
+            aria-pressed={goal === g.id}
+            className={`rounded-full border px-3.5 py-2 text-sm transition-all ${
+              goal === g.id
+                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                : "border-border bg-card hover:border-primary/40 hover:bg-secondary"
+            }`}
+          >
+            <span className="mr-1.5">{g.icon}</span>
+            {g.label}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <Textarea
+      value={note}
+      onChange={(e) => setNote(e.target.value)}
+      maxLength={300}
+      rows={2}
+      placeholder="Anything else? e.g. lactose intolerant, cooking for two kids…"
+      aria-label="Extra context for the AI"
+    />
+
+    <div className="flex flex-col gap-2 sm:flex-row">
+      <Button
+        size="lg"
+        className="flex-1"
+        disabled={mutation.isPending}
+        onClick={() => cameraRef.current?.click()}
+      >
+        <Camera className="h-4 w-4" />
+        Take a photo
+      </Button>
+
+      <Button
+        size="lg"
+        variant="secondary"
+        className="flex-1"
+        disabled={mutation.isPending}
+        onClick={() => uploadRef.current?.click()}
+      >
+        <ImagePlus className="h-4 w-4" />
+        Upload image
+      </Button>
+
+      {preview && !mutation.isPending && (
+        <Button
+          size="lg"
+          variant="ghost"
+          aria-label="Re-run analysis"
+          onClick={() => mutation.mutate(preview)}
+        >
+          <RefreshCw className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  </div>
+</section>
         {/* Result */}
         <div ref={resultRef}>
           {result && <ResultCard result={result} onAdd={addItem} image={preview ?? undefined} />}
