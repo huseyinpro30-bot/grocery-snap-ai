@@ -55,12 +55,21 @@ export const Route = createFileRoute("/")({
 });
 
 function ScanPage() {
-  const [goal, setGoal] = useLocalStore<string>(KEYS.goal, "balanced");
-  const [note, setNote] = useLocalStore<string>(KEYS.note, "");
+  const [goal, setGoal] = useLocalStore<string>(
+    KEYS.goal,
+    "balanced",
+  );
+
+  const [note, setNote] = useLocalStore<string>(
+    KEYS.note,
+    "",
+  );
+
   const [preview, setPreview] = useState<string | null>(null);
 
   const [, setItems] = useBasket();
   const [, setHistory] = useHistory();
+
   const quota = useScanQuota();
 
   const cameraRef = useRef<HTMLInputElement>(null);
@@ -80,7 +89,9 @@ function ScanPage() {
       }),
 
     onError: (e: Error) => {
-      toast.error(e.message || "Couldn't read that photo. Try again.");
+      toast.error(
+        e.message || "Couldn't read that photo. Try again.",
+      );
     },
 
     onSuccess: (data, image) => {
@@ -113,7 +124,8 @@ function ScanPage() {
   function addItem(text: string) {
     setItems((prev) =>
       prev.some(
-        (i) => i.text.toLowerCase() === text.toLowerCase(),
+        (item) =>
+          item.text.toLowerCase() === text.toLowerCase(),
       )
         ? prev
         : [
@@ -164,13 +176,14 @@ function ScanPage() {
 
   return (
     <>
-      {/* Hidden camera input */}
+      {/* Camera input */}
       <input
         ref={cameraRef}
+        id="camera-input"
         type="file"
         accept="image/*"
         capture="environment"
-        className="sr-only"
+        className="absolute h-px w-px overflow-hidden opacity-0"
         onChange={(e) => {
           const file = e.target.files?.[0];
 
@@ -178,17 +191,17 @@ function ScanPage() {
             handleFile(file);
           }
 
-          // Allows selecting the same image again later.
           e.currentTarget.value = "";
         }}
       />
 
-      {/* Hidden upload input */}
+      {/* Upload input */}
       <input
         ref={uploadRef}
+        id="upload-input"
         type="file"
         accept="image/*"
-        className="sr-only"
+        className="absolute h-px w-px overflow-hidden opacity-0"
         onChange={(e) => {
           const file = e.target.files?.[0];
 
@@ -196,7 +209,6 @@ function ScanPage() {
             handleFile(file);
           }
 
-          // Allows selecting the same image again later.
           e.currentTarget.value = "";
         }}
       />
@@ -235,7 +247,7 @@ function ScanPage() {
       </header>
 
       <div className="mx-auto max-w-5xl space-y-6 px-5 pb-8">
-        {/* Quota strip */}
+        {/* Quota */}
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3">
           <div className="flex items-center gap-2 text-sm">
             {quota.pro ? (
@@ -272,26 +284,14 @@ function ScanPage() {
 
         {/* Scanner */}
         <section className="surface overflow-hidden">
-          {/* Camera preview */}
-          <div
-            className={`relative aspect-[4/3] w-full bg-muted ${
+          {/* Clickable camera preview */}
+          <label
+            htmlFor="camera-input"
+            className={`relative block aspect-[4/3] w-full bg-muted ${
               mutation.isPending
                 ? "cursor-wait"
                 : "cursor-pointer"
             }`}
-            onClick={openCamera}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (
-                (e.key === "Enter" || e.key === " ") &&
-                !mutation.isPending
-              ) {
-                e.preventDefault();
-                openCamera();
-              }
-            }}
-            aria-label="Take a photo"
           >
             {preview ? (
               <img
@@ -325,11 +325,11 @@ function ScanPage() {
                 </div>
               </>
             )}
-          </div>
+          </label>
 
-          {/* Scanner controls */}
+          {/* Controls */}
           <div className="space-y-5 p-6">
-            {/* Shopping goal */}
+            {/* Goal */}
             <div>
               <p className="text-xs uppercase tracking-widest text-muted-foreground">
                 Shopping goal
@@ -358,7 +358,7 @@ function ScanPage() {
               </div>
             </div>
 
-            {/* Extra note */}
+            {/* Note */}
             <Textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -368,7 +368,7 @@ function ScanPage() {
               aria-label="Extra context for the AI"
             />
 
-            {/* Buttons */}
+            {/* Action buttons */}
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button
                 type="button"
