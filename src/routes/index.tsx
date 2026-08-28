@@ -32,7 +32,9 @@ import heroImage from "@/assets/hero-groceries.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Cartwise — Scan Groceries, Shop Smarter with AI" },
+      {
+        title: "Cartwise — Scan Groceries, Shop Smarter with AI",
+      },
       {
         name: "description",
         content:
@@ -47,20 +49,35 @@ export const Route = createFileRoute("/")({
         content:
           "AI grocery scanner: photo in, verdict out. Match scores, label flags and smarter swaps.",
       },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      {
+        property: "og:type",
+        content: "website",
+      },
+      {
+        name: "twitter:card",
+        content: "summary_large_image",
+      },
     ],
   }),
   component: ScanPage,
 });
 
 function ScanPage() {
-  const [goal, setGoal] = useLocalStore<string>(KEYS.goal, "balanced");
-  const [note, setNote] = useLocalStore<string>(KEYS.note, "");
+  const [goal, setGoal] = useLocalStore<string>(
+    KEYS.goal,
+    "balanced",
+  );
+
+  const [note, setNote] = useLocalStore<string>(
+    KEYS.note,
+    "",
+  );
+
   const [preview, setPreview] = useState<string | null>(null);
 
   const [, setItems] = useBasket();
   const [, setHistory] = useHistory();
+
   const quota = useScanQuota();
 
   const cameraRef = useRef<HTMLInputElement>(null);
@@ -79,8 +96,10 @@ function ScanPage() {
         },
       }),
 
-    onError: (e: Error) => {
-      toast.error(e.message || "Couldn't read that photo. Try again.");
+    onError: (error: Error) => {
+      toast.error(
+        error.message || "Couldn't read that photo. Try again.",
+      );
     },
 
     onSuccess: (data, image) => {
@@ -114,18 +133,20 @@ function ScanPage() {
     if (mutation.isPending) return;
 
     const input = cameraRef.current;
+
     if (!input) return;
 
-    // Reset first so choosing the same image again still fires onChange.
+    // Reset the input so selecting the same photo again
+    // still triggers the change event.
     input.value = "";
 
-    // showPicker is more reliable where supported.
+    // Use the browser picker when supported.
     if ("showPicker" in HTMLInputElement.prototype) {
       try {
         input.showPicker();
         return;
       } catch {
-        // Fall back to click below.
+        // Fall back to click().
       }
     }
 
@@ -136,8 +157,11 @@ function ScanPage() {
     if (mutation.isPending) return;
 
     const input = uploadRef.current;
+
     if (!input) return;
 
+    // Reset the input so selecting the same photo again
+    // still triggers the change event.
     input.value = "";
 
     if ("showPicker" in HTMLInputElement.prototype) {
@@ -145,7 +169,7 @@ function ScanPage() {
         input.showPicker();
         return;
       } catch {
-        // Fall back to click below.
+        // Fall back to click().
       }
     }
 
@@ -166,6 +190,7 @@ function ScanPage() {
       const dataUrl = await fileToCompressedDataUrl(file);
 
       setPreview(dataUrl);
+
       mutation.mutate(dataUrl);
     } catch {
       toast.error("That image couldn't be loaded.");
@@ -175,7 +200,8 @@ function ScanPage() {
   function addItem(text: string) {
     setItems((prev) =>
       prev.some(
-        (item) => item.text.toLowerCase() === text.toLowerCase(),
+        (item) =>
+          item.text.toLowerCase() === text.toLowerCase(),
       )
         ? prev
         : [
@@ -256,6 +282,7 @@ function ScanPage() {
             {quota.pro ? (
               <>
                 <Zap className="h-4 w-4 text-citrus" />
+
                 <span className="font-medium">
                   Cartwise Pro — unlimited scans
                 </span>
@@ -286,7 +313,7 @@ function ScanPage() {
 
         {/* Scanner */}
         <section className="surface overflow-hidden">
-          {/* Clickable scanner */}
+          {/* Clickable camera area */}
           <button
             type="button"
             disabled={mutation.isPending}
@@ -340,20 +367,27 @@ function ScanPage() {
               </p>
 
               <div className="mt-2 flex flex-wrap gap-2">
-                {GOALS.map((g) => (
+                {GOALS.map((goalOption) => (
                   <button
                     type="button"
-                    key={g.id}
-                    onClick={() => setGoal(g.id)}
-                    aria-pressed={goal === g.id}
+                    key={goalOption.id}
+                    onClick={() =>
+                      setGoal(goalOption.id)
+                    }
+                    aria-pressed={
+                      goal === goalOption.id
+                    }
                     className={`rounded-full border px-3.5 py-2 text-sm transition-all ${
-                      goal === g.id
+                      goal === goalOption.id
                         ? "border-primary bg-primary text-primary-foreground shadow-sm"
                         : "border-border bg-card hover:border-primary/40 hover:bg-secondary"
                     }`}
                   >
-                    <span className="mr-1.5">{g.icon}</span>
-                    {g.label}
+                    <span className="mr-1.5">
+                      {goalOption.icon}
+                    </span>
+
+                    {goalOption.label}
                   </button>
                 ))}
               </div>
@@ -361,7 +395,9 @@ function ScanPage() {
 
             <Textarea
               value={note}
-              onChange={(event) => setNote(event.target.value)}
+              onChange={(event) =>
+                setNote(event.target.value)
+              }
               maxLength={300}
               rows={2}
               placeholder="Anything else? e.g. lactose intolerant, cooking for two kids…"
@@ -398,7 +434,9 @@ function ScanPage() {
                   size="lg"
                   variant="ghost"
                   aria-label="Re-run analysis"
-                  onClick={() => mutation.mutate(preview)}
+                  onClick={() =>
+                    mutation.mutate(preview)
+                  }
                 >
                   <RefreshCw className="h-4 w-4" />
                 </Button>
