@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BasketRouteImport } from './routes/basket'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ProRouteImport } from './routes/pro'
+import { Route as ProfileRouteImport } from './routes/profile'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,18 +35,25 @@ const ProRoute = ProRouteImport.update({
   path: '/pro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/basket': typeof BasketRoute
   '/history': typeof HistoryRoute
   '/pro': typeof ProRoute
+  '/profile': typeof ProfileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/basket': typeof BasketRoute
   '/history': typeof HistoryRoute
   '/pro': typeof ProRoute
+  '/profile': typeof ProfileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/basket': typeof BasketRoute
   '/history': typeof HistoryRoute
   '/pro': typeof ProRoute
+  '/profile': typeof ProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/basket' | '/history' | '/pro'
+  fullPaths: '/' | '/basket' | '/history' | '/pro' | '/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/basket' | '/history' | '/pro'
-  id: '__root__' | '/' | '/basket' | '/history' | '/pro'
+  to: '/' | '/basket' | '/history' | '/pro' | '/profile'
+  id: '__root__' | '/' | '/basket' | '/history' | '/pro' | '/profile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +76,7 @@ export interface RootRouteChildren {
   BasketRoute: typeof BasketRoute
   HistoryRoute: typeof HistoryRoute
   ProRoute: typeof ProRoute
+  ProfileRoute: typeof ProfileRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   BasketRoute: BasketRoute,
   HistoryRoute: HistoryRoute,
   ProRoute: ProRoute,
+  ProfileRoute: ProfileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
