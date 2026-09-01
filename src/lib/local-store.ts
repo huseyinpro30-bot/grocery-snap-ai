@@ -65,4 +65,6 @@ export const KEYS = {
   note: "cartwise.note",
   pro: "cartwise.pro",
   scans: "cartwise.scans",
+  profile: "cartwise.profile",
+  saved: "cartwise.saved",
 } as const;
