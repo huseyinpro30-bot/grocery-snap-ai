@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BasketRouteImport } from './routes/basket'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ProRouteImport } from './routes/pro'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const BasketRoute = BasketRouteImport.update({
   id: '/basket',
   path: '/basket',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -44,6 +50,7 @@ const ProfileRoute = ProfileRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/basket': typeof BasketRoute
+  '/compare': typeof CompareRoute
   '/history': typeof HistoryRoute
   '/pro': typeof ProRoute
   '/profile': typeof ProfileRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/basket': typeof BasketRoute
+  '/compare': typeof CompareRoute
   '/history': typeof HistoryRoute
   '/pro': typeof ProRoute
   '/profile': typeof ProfileRoute
@@ -59,21 +67,24 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/basket': typeof BasketRoute
+  '/compare': typeof CompareRoute
   '/history': typeof HistoryRoute
   '/pro': typeof ProRoute
   '/profile': typeof ProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/basket' | '/history' | '/pro' | '/profile'
+  fullPaths: '/' | '/basket' | '/compare' | '/history' | '/pro' | '/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/basket' | '/history' | '/pro' | '/profile'
-  id: '__root__' | '/' | '/basket' | '/history' | '/pro' | '/profile'
+  to: '/' | '/basket' | '/compare' | '/history' | '/pro' | '/profile'
+  id:
+    '__root__' | '/' | '/basket' | '/compare' | '/history' | '/pro' | '/profile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BasketRoute: typeof BasketRoute
+  CompareRoute: typeof CompareRoute
   HistoryRoute: typeof HistoryRoute
   ProRoute: typeof ProRoute
   ProfileRoute: typeof ProfileRoute
@@ -93,6 +104,13 @@ declare module '@tanstack/react-router' {
       path: '/basket'
       fullPath: '/basket'
       preLoaderRoute: typeof BasketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -122,6 +140,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BasketRoute: BasketRoute,
+  CompareRoute: CompareRoute,
   HistoryRoute: HistoryRoute,
   ProRoute: ProRoute,
   ProfileRoute: ProfileRoute,
